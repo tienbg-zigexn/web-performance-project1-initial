@@ -12,9 +12,13 @@ jobs:
       - name: Trigger Jenkins Build
         run: |
           CAUSE="Triggered+by+GitHook"
-          curl "https://${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_PASSWORD }}@${{ secrets.JENKINS_DOMAIN }}/job/workshop2/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}" \
+          CRUMB=$(curl -s "${{ secrets.JENKINS_URL }}/crumbIssuer/api/json" --user "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" | jq -r '.crumb')
+          curl "${{ secrets.JENKINS_URL }}/job/workshop2/buildWithParameters" \
+            -u "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_PASSWORD }}" \
+            -d "token=${{ secrets.JENKINS_TOKEN }}" \
             -d "LOCAL_TARGET=true" \
             -d "REMOTE_TARGET=true" \
             -d "FIREBASE_TARGET=true" \
             -d "cause=$CAUSE" \
-            -H 'ngrok-skip-browser-warning: yes'
+            -H 'ngrok-skip-browser-warning: yes' \
+            -H "Jenkins-Crumb:$CRUMB"
