@@ -83,9 +83,10 @@ pipeline {
         success {
             script {
                 def branch = env.BRANCH_NAME ?: 'unknown'
+                def user = 'TienBG'
                 def duration = currentBuild.durationString
                 def cause = currentBuild.getBuildCauses()[0]?.shortDescription ?: 'unknown'
-                def details = ":scout-approved: *Build Successful*\n\n*Branch:* ${branch}\n*Duration:* ${duration}\n*Cause:* ${cause}\n\n*Deployed Targets:*\n"
+                def details = ":scout-approved: *Build Successful*\n\n*User:* ${user}\n*Branch:* ${branch}\n*Duration:* ${duration}\n*Cause:* ${cause}\n\n*Deployed Targets:*\n"
                 def targets = env.DEPLOYED_TARGETS?.split(',') ?: []
                 targets.each { target ->
                     def url = target == 'firebase' ? 'https://tienbg-workshop2.firebaseapp.com' :
@@ -101,7 +102,7 @@ pipeline {
                 def branch = env.BRANCH_NAME ?: 'unknown'
                 def duration = currentBuild.durationString
                 def cause = currentBuild.getBuildCauses()[0]?.shortDescription ?: 'unknown'
-                def details = ":evil-grin: *Build Failed*\n\n*Branch:* ${branch}\n*Duration:* ${duration}\n*Cause:* ${cause}\n\n*Jenkins:* <${env.BUILD_URL}|View Build>"
+                def details = ":evil-grin: *Build Failed*\n\n*User:* ${user}\n*Branch:* ${branch}\n*Duration:* ${duration}\n*Cause:* ${cause}\n\n*Jenkins:* <${env.BUILD_URL}|View Build>"
                 slackSend(message: details.trim(), color: 'danger')
             }
         }
