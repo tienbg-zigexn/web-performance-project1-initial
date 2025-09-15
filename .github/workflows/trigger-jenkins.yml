@@ -12,4 +12,4 @@ jobs:
       - name: Trigger Jenkins Build
         run: |
           CAUSE="Triggered+by+GitHook"
-          curl "${{ secrets.JENKINS_URL }}/job/workshop2/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}&LOCAL_TARGET=true&REMOTE_TARGET=true&FIREBASE_TARGET=true&cause=$CAUSE"
+          curl "${{ secrets.JENKINS_URL }}/job/workshop2/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}&LOCAL_TARGET=true&REMOTE_TARGET=true&FIREBASE_TARGET=true&cause=$CAUSE" -H 'ngrok-skip-browser-warning: yes'
