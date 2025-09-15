@@ -21,4 +21,4 @@ jobs:
             -d "FIREBASE_TARGET=true" \
             -d "cause=$CAUSE" \
             -H 'ngrok-skip-browser-warning: yes' \
-            -H "Jenkins-Crumb:$CRUMB"
+            -H "Jenkins-Crumb: $CRUMB"
