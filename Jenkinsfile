@@ -7,8 +7,6 @@ pipeline {
         booleanParam(name: 'FIREBASE_TARGET', defaultValue: true, description: 'Deploy firebase')
     }
 
-    triggers { pollSCM('* * * * *') }
-
     stages {
         stage('Checkout') {
             steps {
