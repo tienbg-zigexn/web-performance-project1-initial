@@ -1,0 +1,15 @@
+name: Trigger Jenkins Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Build
+        run: |
+          CAUSE="Triggered+by+GitHook"
+          curl "${{ secrets.JENKINS_URL }}/job/workshop2/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}&LOCAL_TARGET=true&REMOTE_TARGET=true&FIREBASE_TARGET=true&cause=$CAUSE"
