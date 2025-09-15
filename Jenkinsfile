@@ -91,7 +91,7 @@ pipeline {
                 targets.each { target ->
                     def url = target == 'firebase' ? 'https://tienbg-workshop2.firebaseapp.com' :
                               target == 'remote' ? 'http://10.1.1.195/jenkins/tienbg2/current' :
-                              target == 'local' ? 'http://localhost' : 'unknown'
+                              target == 'local' ? 'http://localhost/jenkins/tienbg2/current' : 'unknown'
                     details += "• *${target.capitalize()}:* <${url}|${url}>\n"
                 }
                 slackSend(message: details.trim(), color: 'good')
@@ -100,6 +100,7 @@ pipeline {
         failure {
             script {
                 def branch = env.BRANCH_NAME ?: 'unknown'
+                def user = 'TienBG'
                 def duration = currentBuild.durationString
                 def cause = currentBuild.getBuildCauses()[0]?.shortDescription ?: 'unknown'
                 def details = ":evil-grin: *Build Failed*\n\n*User:* ${user}\n*Branch:* ${branch}\n*Duration:* ${duration}\n*Cause:* ${cause}\n\n*Jenkins:* <${env.BUILD_URL}|View Build>"
