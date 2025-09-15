@@ -30,24 +30,29 @@ pipeline {
             steps {
                 script {
                     def branches = [:]
+                    def deployed = []
                     if (params.FIREBASE_TARGET) {
                         branches['Firebase'] = {
                             withCredentials([file(credentialsId: 'adc-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                                 echo 'Deploying to firebase...'
                             }
                         }
+                        deployed.add('firebase')
                     }
                     if (params.REMOTE_TARGET) {
                         branches['Remote'] = {
                             echo 'Deploying to Remote'
                         }
+                        deployed.add('remote')
                     }
                     if (params.LOCAL_TARGET) {
                         branches['Local'] = {
                             echo 'Deploying to Local'
                         }
+                        deployed.add('local')
                     }
                     parallel branches
+                    env.DEPLOYED_TARGETS = deployed.join(',')
                 }
             }
         }
@@ -56,37 +61,21 @@ pipeline {
     post {
         success {
             script {
-                blocks = [
-                    [
-                        'type': 'section',
-                        'text': [
-                            'type': 'mrkdwn',
-                            'text': "Hello, Assistant to the Regional Manager Dwight! *Michael Scott* wants to know where you'd like to take the Paper Company investors to dinner tonight.\n\n *Please select a restaurant:*"
-                        ]
-                    ],
-                    [
-                        'type': 'divider'
-                    ],
-                    [
-                        'type': 'section',
-                        'text': [
-                            'type': 'mrkdwn',
-                            'text': "*Farmhouse Thai Cuisine*\n:star::star::star::star: 1528 reviews\n They do have some vegan options, like the roti and curry, plus they have a ton of salad stuff and noodles can be ordered without meat!! They have something for everyone here"
-                        ],
-                        'accessory': [
-                            'type': 'image',
-                            'image_url': 'https://s3-media3.fl.yelpcdn.com/bphoto/c7ed05m9lC2EmA3Aruue7A/o.jpg',
-                            'alt_text': 'alt text for image'
-                        ]
-                    ]
-                ]
-
-                slackSend(blocks: blocks)
+                def message = "*Build successful* by TienBG. Jenkins: ${env.BUILD_URL}\n"
+                def targets = env.DEPLOYED_TARGETS?.split(',') ?: []
+                targets.each { target ->
+                    def url = target == 'firebase' ? 'https://tienbg-workshop2.firebaseapp.com' :
+                              target == 'remote' ? 'https://remote.example.com' :
+                              target == 'local' ? 'http://localhost:3000' : 'unknown'
+                    message += "*${target.capitalize()}*: ${url}\n"
+                }
+                slackSend(message: message.trim())
             }
         }
         failure {
             script {
-                slackSend(message: 'Hello world')
+                def message = "*Build failed* by TienBG. Jenkins: ${env.BUILD_URL}"
+                slackSend(message: message)
             }
         }
     }
