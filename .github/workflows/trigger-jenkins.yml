@@ -12,9 +12,7 @@ jobs:
       - name: Trigger Jenkins Build
         run: |
           CAUSE="Triggered+by+GitHook"
-          curl "${{ secrets.JENKINS_URL }}/job/workshop2/buildWithParameters" \
-            -u "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_PASSWORD }}" \
-            -d "token=${{ secrets.JENKINS_TOKEN }}" \
+          curl "https://${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_PASSWORD }}@${{ secrets.JENKINS_DOMAIN }}/job/workshop2/buildWithParameters?token=${{ secrets.JENKINS_TOKEN }}" \
             -d "LOCAL_TARGET=true" \
             -d "REMOTE_TARGET=true" \
             -d "FIREBASE_TARGET=true" \
