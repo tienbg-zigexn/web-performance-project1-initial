@@ -12,19 +12,22 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    def scmVars = checkout scm
+                    env.BRANCH_NAME = scmVars.GIT_BRANCH
+                }
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Building...'
+                sh 'npm install'
             }
         }
 
         stage('Lint/Test') {
             steps {
-                echo 'Linting and testing...'
+                sh 'npm run test:ci'
             }
         }
 
@@ -36,7 +39,7 @@ pipeline {
                     if (params.FIREBASE_TARGET) {
                         branches['Firebase'] = {
                             withCredentials([file(credentialsId: 'adc-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                                echo 'Deploying to firebase...'
+                                sh 'firebase deploy --only hosting --project=tienbg-workshop2'
                             }
                         }
                         deployed.add('firebase')
