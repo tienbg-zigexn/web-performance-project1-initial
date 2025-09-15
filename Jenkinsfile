@@ -30,29 +30,24 @@ pipeline {
             steps {
                 script {
                     def branches = [:]
-                    def deployed = []
                     if (params.FIREBASE_TARGET) {
                         branches['Firebase'] = {
                             withCredentials([file(credentialsId: 'adc-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                                 echo 'Deploying to firebase...'
                             }
                         }
-                        deployed.add('firebase')
                     }
                     if (params.REMOTE_TARGET) {
                         branches['Remote'] = {
                             echo 'Deploying to Remote'
                         }
-                        deployed.add('remote')
                     }
                     if (params.LOCAL_TARGET) {
                         branches['Local'] = {
                             echo 'Deploying to Local'
                         }
-                        deployed.add('local')
                     }
                     parallel branches
-                    env.DEPLOYED_TARGETS = deployed.join(',')
                 }
             }
         }
@@ -61,43 +56,12 @@ pipeline {
     post {
         success {
             script {
-                def blocks = [
-                    [
-                        'type': 'section',
-                        'text': [
-                            'type': 'mrkdwn',
-                            'text': "*Build successful* by TienBG. Jenkins: ${env.BUILD_URL}"
-                        ]
-                    ]
-                ]
-                def targets = env.DEPLOYED_TARGETS?.split(',') ?: []
-                targets.each { target ->
-                    def url = target == 'firebase' ? 'https://tienbg-workshop2.firebaseapp.com' :
-                              target == 'remote' ? 'https://remote.example.com' :
-                              target == 'local' ? 'http://localhost:3000' : 'unknown'
-                    blocks.add([
-                        'type': 'section',
-                        'text': [
-                            'type': 'mrkdwn',
-                            'text': "*${target.capitalize()}*: ${url}"
-                        ]
-                    ])
-                }
-                slackSend(tokenCredentialId: 'jenkins-slack-token', blocks: blocks)
+                slackSend(message: "Hello world")
             }
         }
         failure {
             script {
-                def message = "*Build failed* by TienBG. Jenkins: ${env.BUILD_URL}"
-                slackSend(tokenCredentialId: 'jenkins-slack-token', blocks: [
-                    [
-                        'type': 'section',
-                        'text': [
-                            'type': 'mrkdwn',
-                            'text': message
-                        ]
-                    ]
-                ])
+                slackSend(message: "Hello world")
             }
         }
     }
