@@ -41,13 +41,13 @@ pipeline {
                     }
                     if (params.REMOTE_TARGET) {
                         branches['Remote'] = {
-                            echo "Deploying to Remote"
+                            echo 'Deploying to Remote'
                         }
                         deployed.add('remote')
                     }
                     if (params.LOCAL_TARGET) {
                         branches['Local'] = {
-                            echo "Deploying to Local"
+                            echo 'Deploying to Local'
                         }
                         deployed.add('local')
                     }
@@ -83,13 +83,13 @@ pipeline {
                         ]
                     ])
                 }
-                slackSend(blocks: blocks)
+                slackSend(channel: '#lnd-2025-workshop', blocks: blocks)
             }
         }
         failure {
             script {
                 def message = "*Build failed* by TienBG. Jenkins: ${env.BUILD_URL}"
-                slackSend(blocks: [
+                slackSend(channel: '#lnd-2025-workshop', blocks: [
                     [
                         'type': 'section',
                         'text': [
