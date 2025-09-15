@@ -40,7 +40,7 @@ pipeline {
                         branches['Firebase'] = {
                             sh '''
                                 /usr/bin/mkdir -p public
-                                cp -rf {index,404}.html css js images public/
+                                cp -rf index.html 404.html css js images public/
                             '''
                             withCredentials([file(credentialsId: 'adc-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                                 sh 'firebase deploy --only hosting --project=tienbg-workshop2'
