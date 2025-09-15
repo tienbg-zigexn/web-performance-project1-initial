@@ -38,6 +38,10 @@ pipeline {
                     def deployed = []
                     if (params.FIREBASE_TARGET) {
                         branches['Firebase'] = {
+                            sh '''
+                                /usr/bin/mkdir -p public
+                                cp -rf {index,404}.html css js images public/
+                            '''
                             withCredentials([file(credentialsId: 'adc-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                                 sh 'firebase deploy --only hosting --project=tienbg-workshop2'
                             }
@@ -46,13 +50,25 @@ pipeline {
                     }
                     if (params.REMOTE_TARGET) {
                         branches['Remote'] = {
-                            echo 'Deploying to Remote'
+                            ansiblePlaybook(
+                                playbook: '/var/jenkins_home/ansible/deploy_workshop2.yml',
+                                inventory: '/var/jenkins_home/ansible/hosts',
+                                extraVars: [
+                                    TARGET_SERVERS: 'direct'
+                                ]
+                            )
                         }
                         deployed.add('remote')
                     }
                     if (params.LOCAL_TARGET) {
                         branches['Local'] = {
-                            echo 'Deploying to Local'
+                            ansiblePlaybook(
+                                playbook: '/var/jenkins_home/ansible/deploy_workshop2.yml',
+                                inventory: '/var/jenkins_home/ansible/hosts',
+                                extraVars: [
+                                    TARGET_SERVERS: 'local'
+                                ]
+                            )
                         }
                         deployed.add('local')
                     }
@@ -73,8 +89,8 @@ pipeline {
                 def targets = env.DEPLOYED_TARGETS?.split(',') ?: []
                 targets.each { target ->
                     def url = target == 'firebase' ? 'https://tienbg-workshop2.firebaseapp.com' :
-                              target == 'remote' ? 'https://remote.example.com' :
-                              target == 'local' ? 'http://localhost:3000' : 'unknown'
+                              target == 'remote' ? 'http://10.1.1.195/jenkins/tienbg2/current' :
+                              target == 'local' ? 'http://localhost' : 'unknown'
                     details += "• *${target.capitalize()}:* <${url}|${url}>\n"
                 }
                 slackSend(message: details.trim(), color: 'good')
