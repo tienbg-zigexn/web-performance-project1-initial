@@ -61,21 +61,27 @@ pipeline {
     post {
         success {
             script {
-                def message = "*Build successful* by TienBG. Jenkins: ${env.BUILD_URL}\n"
+                def branch = env.BRANCH_NAME ?: 'unknown'
+                def duration = currentBuild.durationString
+                def cause = currentBuild.getBuildCauses()[0]?.shortDescription ?: 'unknown'
+                def details = "Branch: ${branch}\nDuration: ${duration}\nCause: ${cause}\n"
                 def targets = env.DEPLOYED_TARGETS?.split(',') ?: []
                 targets.each { target ->
                     def url = target == 'firebase' ? 'https://tienbg-workshop2.firebaseapp.com' :
                               target == 'remote' ? 'https://remote.example.com' :
                               target == 'local' ? 'http://localhost:3000' : 'unknown'
-                    message += "*${target.capitalize()}*: ${url}\n"
+                    details += "${target.capitalize()}: ${url}\n"
                 }
-                slackSend(message: message.trim())
+                slackSend(message: "Build Successful", attachments: [[color: "good", text: details.trim()]])
             }
         }
         failure {
             script {
-                def message = "*Build failed* by TienBG. Jenkins: ${env.BUILD_URL}"
-                slackSend(message: message)
+                def branch = env.BRANCH_NAME ?: 'unknown'
+                def duration = currentBuild.durationString
+                def cause = currentBuild.getBuildCauses()[0]?.shortDescription ?: 'unknown'
+                def details = "Branch: ${branch}\nDuration: ${duration}\nCause: ${cause}\nJenkins: ${env.BUILD_URL}"
+                slackSend(message: "Build Failed", attachments: [[color: "danger", text: details]])
             }
         }
     }
