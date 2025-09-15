@@ -1,0 +1,24 @@
+# name: Trigger Jenkins Build
+#
+# on:
+#   push:
+#     branches:
+#       - main
+#
+# jobs:
+#   trigger:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Trigger Jenkins Build
+#         run: |
+#           CAUSE="Triggered+by+GitHook"
+#           CRUMB=$(curl -s "${{ secrets.JENKINS_URL }}/crumbIssuer/api/json" --user "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_API_TOKEN }}" | jq -r '.crumb')
+#           curl "${{ secrets.JENKINS_URL }}/job/workshop2/buildWithParameters" \
+#             -u "${{ secrets.JENKINS_USERNAME }}:${{ secrets.JENKINS_PASSWORD }}" \
+#             -d "token=${{ secrets.JENKINS_TOKEN }}" \
+#             -d "LOCAL_TARGET=true" \
+#             -d "REMOTE_TARGET=true" \
+#             -d "FIREBASE_TARGET=true" \
+#             -d "cause=$CAUSE" \
+#             -H 'ngrok-skip-browser-warning: yes' \
+#             -H "Jenkins-Crumb: $CRUMB"
