@@ -7,7 +7,7 @@ pipeline {
         booleanParam(name: 'FIREBASE_TARGET', defaultValue: true, description: 'Deploy firebase')
     }
 
-    environments {
+    environment {
         SLACK_CREDENTIAL = credientials('jenkins-slack-token')
     }
 
