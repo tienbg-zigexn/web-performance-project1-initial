@@ -7,6 +7,10 @@ pipeline {
         booleanParam(name: 'FIREBASE_TARGET', defaultValue: true, description: 'Deploy firebase')
     }
 
+    environments {
+        SLACK_CREDENTIAL = credientials('jenkins-slack-token')
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -34,7 +38,7 @@ pipeline {
                     if (params.FIREBASE_TARGET) {
                         branches['Firebase'] = {
                             withCredentials([file(credentialsId: 'adc-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                                echo "${GOOGLE_APPLICATION_CREDENTIALS}"
+                                echo 'Deploying to firebase...'
                             }
                         }
                         deployed.add('firebase')
@@ -83,13 +87,13 @@ pipeline {
                         ]
                     ])
                 }
-                slackSend(channel: '#lnd-2025-workshop', blocks: blocks)
+                slackSend(tokenCredentialId: "$SLACK_CREDENTIAL", blocks: blocks)
             }
         }
         failure {
             script {
                 def message = "*Build failed* by TienBG. Jenkins: ${env.BUILD_URL}"
-                slackSend(channel: '#lnd-2025-workshop', blocks: [
+                slackSend(tokenCredentialId: "$SLACK_CREDENTIAL", blocks: [
                     [
                         'type': 'section',
                         'text': [
